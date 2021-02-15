@@ -1,0 +1,2 @@
+Model,FLOPs,Accuracy
+Layer 2 kernels at 2 from 3 ad Input Layer Stride 2 patience 30,0.004941402,0.7734375

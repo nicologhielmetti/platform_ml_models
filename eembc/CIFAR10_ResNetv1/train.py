@@ -8,6 +8,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.metrics import roc_auc_score
 import resnet_v1_eembc
 import yaml
+import csv
 
 #from keras_flops import get_flops #(different flop calculation)
 import kerop
@@ -84,7 +85,8 @@ def main(args):
     print('# MODEL SUMMARY #')
     print('#################')
     print(model.summary())
-    print('#################')
+    print('#################') 
+    
 
     # analyze FLOPs (see https://github.com/kentaroy47/keras-Opcounter)
     layer_name, layer_flops, inshape, weights = kerop.profile(model)
@@ -110,7 +112,7 @@ def main(args):
 
     callbacks = [tf.keras.callbacks.LearningRateScheduler(lr_schedule, verbose=verbose),
                  tf.keras.callbacks.ModelCheckpoint(model_file_path, monitor='val_loss', verbose=verbose, save_best_only=True),
-                 tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=patience, verbose=verbose, restore_best_weights=True)
+                 tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=30, verbose=verbose, restore_best_weights=True)
     ]
 
     # train
@@ -137,7 +139,16 @@ def main(args):
 
     print('Model accuracy = %.3f' % evaluation[1])
     print('Model weighted average AUC = %.3f' % auc)
-
+    
+    
+    #initialise .csv requirements
+    csvfields = ['Model','FLOPs','Accuracy']
+    csvfilename = "hyperparam_results/Best_2_30.csv"
+    csvdata_rows = [['Layer 2 kernels at 2 from 3 ad Input Layer Stride 2 patience 30',total_flop/1e9,evaluation[1]]]
+    with open(csvfilename, 'w') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(csvfields)
+        csvwriter.writerows(csvdata_rows)
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
