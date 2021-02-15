@@ -154,8 +154,8 @@ def main(args):
     
     #initialise .csv requirements
     csvfields = ['Model','FLOPs','Accuracy']
-    csvfilename = "hyperparam_results/Best_2_30.csv"
-    csvdata_rows = [['Layer 2 kernels at 2 from 3 ad Input Layer Stride 2 patience 30',total_flop/1e9,evaluation[1]]]
+    #csvfilename = "hyperparam_results/Best_2_30.csv"            #CHANGE THESE DEPENDING ON WHAT YOU'RE SAVING AND WHERE YOU'RE SAVING
+    #csvdata_rows = [['Layer 2 kernels at 2 from 3 ad Input Layer Stride 2 patience 30',total_flop/1e9,evaluation[1]]]
     with open(csvfilename, 'w') as csvfile:
         csvwriter = csv.writer(csvfile)
         csvwriter.writerow(csvfields)

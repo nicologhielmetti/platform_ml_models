@@ -14,7 +14,7 @@ def resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, num_filters=[16, 32
     inputs = Input(shape=input_shape)
     x = Conv2D(num_filters[0],   #default [0]
                   kernel_size=kernel_sizes[0],    #default [0]
-                  strides=2,  #strides[0], #strides[0],    #default [0]
+                  strides=strides[0],    #default [0]
                   padding='same',
                   kernel_initializer='he_normal',
                   kernel_regularizer=l1_l2(l1=l1p,l2=l2p))(inputs)
@@ -24,7 +24,7 @@ def resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, num_filters=[16, 32
     # First stack
     # Weight layers
     y = Conv2D(num_filters[0],    #default [0]
-                  kernel_size=2, #kernel_sizes[0],     #default [0]
+                  kernel_size=kernel_sizes[0],     #default [0]
                   strides=strides[0],    #default [0]
                   padding='same',
                   kernel_initializer='he_normal',
@@ -32,7 +32,7 @@ def resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, num_filters=[16, 32
     y = BatchNormalization()(y)
     y = Activation('relu')(y)
     y = Conv2D(num_filters[0],   #default [0]
-                  kernel_size=2,  #kernel_sizes[0],    #default [0]
+                  kernel_size=kernel_sizes[0],    #default [0]
                   strides=strides[0],   #default [0]
                   padding='same',
                   kernel_initializer='he_normal',
