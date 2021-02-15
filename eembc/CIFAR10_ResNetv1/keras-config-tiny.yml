@@ -1,0 +1,13 @@
+KerasH5:   resnet_v1_eembc_tiny/model_best.h5
+OutputDir: my-hls-test-tiny
+ProjectName: myproject
+XilinxPart: xc7z020clg400-1
+ClockPeriod: 5
+Backend: Pynq
+
+IOType: io_stream
+HLSConfig:
+  Model:
+    Precision: ap_fixed<8,4>
+    ReuseFactor: 100
+    Strategy: Resource

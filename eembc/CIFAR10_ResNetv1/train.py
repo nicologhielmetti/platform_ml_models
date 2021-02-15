@@ -1,4 +1,3 @@
-import setGPU
 import os
 import glob
 import sys
@@ -19,13 +18,6 @@ def yaml_load(config):
     with open(config) as stream:
         param = yaml.safe_load(stream)
     return param
-
-def lr_schedule(epoch):
-    initial_learning_rate = 0.001
-    decay_per_epoch = 0.99
-    lrate = initial_learning_rate * (decay_per_epoch ** epoch)
-    print('Learning rate = %f'%lrate)
-    return lrate
 
 def main(args):
 
@@ -48,7 +40,9 @@ def main(args):
     model_file_path = os.path.join(save_dir, 'model_best.h5')
 
     # optimizer
-    optimizer = config['fit']['compile']['optimizer']
+    optimizer = getattr(tf.keras.optimizers,config['fit']['compile']['optimizer'])
+    initial_lr = config['fit']['compile']['initial_lr']
+    lr_decay = config['fit']['compile']['lr_decay']
 
     # load dataset
     (X_train, y_train), (X_test, y_test) = cifar10.load_data()
@@ -102,26 +96,43 @@ def main(args):
     #total_flop = get_flops(model, batch_size=1)
     #print("FLOPS: {} GLOPs".format(total_flop/1e9))
 
-    # compile model with optimizer
-    model.compile(loss=loss,
-                  optimizer=optimizer,
+    print(X_train.shape[0] // batch_size)
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        initial_lr,
+        decay_steps=X_train.shape[0] // batch_size,
+        decay_rate=lr_decay,
+        staircase=True)
+
+    model.compile(optimizer=optimizer(learning_rate=lr_schedule),
+                  loss=loss,
                   metrics=['accuracy'])
 
-    # callbacks
-    from tensorflow.keras.callbacks import EarlyStopping,History,ModelCheckpoint,ReduceLROnPlateau
 
+    # compile model with optimizer
+    #model.compile(loss=loss,
+    #              optimizer=optimizer,
+    #              metrics=['accuracy'])
+
+    # callbacks
+    from tensorflow.keras.callbacks import EarlyStopping,ModelCheckpoint
+
+<<<<<<< HEAD
     callbacks = [tf.keras.callbacks.LearningRateScheduler(lr_schedule, verbose=verbose),
                  tf.keras.callbacks.ModelCheckpoint(model_file_path, monitor='val_loss', verbose=verbose, save_best_only=True),
                  tf.keras.callbacks.EarlyStopping(monitor='val_loss', patience=30, verbose=verbose, restore_best_weights=True)
+=======
+    callbacks = [ModelCheckpoint(model_file_path, monitor='val_loss', verbose=verbose, save_best_only=True),
+                 EarlyStopping(monitor='val_loss', patience=patience, verbose=verbose, restore_best_weights=True)
+>>>>>>> 21dc894926aea32f01ad67cd4a062b4fb8efdb38
     ]
 
     # train
-    model.fit(datagen.flow(X_train, y_train, batch_size=batch_size),
-              steps_per_epoch=X_train.shape[0] // batch_size,
-              epochs=num_epochs,
-              validation_data=(X_test, y_test),
-              callbacks=callbacks,
-              verbose=verbose)
+    history = model.fit(datagen.flow(X_train, y_train, batch_size=batch_size),
+                        steps_per_epoch=X_train.shape[0] // batch_size,
+                        epochs=num_epochs,
+                        validation_data=(X_test, y_test),
+                        callbacks=callbacks,
+                        verbose=verbose)
 
 
     # restore "best" model
@@ -152,7 +163,7 @@ def main(args):
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', type=str, default = "baseline.yaml", help="specify yaml config")
+    parser.add_argument('-c', '--config', type=str, default = "baseline.yml", help="specify yaml config")
 
     args = parser.parse_args()
 
