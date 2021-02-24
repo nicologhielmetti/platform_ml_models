@@ -72,7 +72,7 @@ def main(args):
 
     datagen.fit(X_train)
 
-    print("Here is the summary: \n", tuner.search_space_summary())
+    print(tuner.search_space_summary())
 
     from tensorflow.keras.callbacks import LearningRateScheduler
     lr_schedule_func = get_lr_schedule_func(0.001, 0.99)
