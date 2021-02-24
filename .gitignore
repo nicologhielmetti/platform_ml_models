@@ -3,9 +3,3 @@
 *.pyc
 __pycache__
 jupyter.log
-
-flops_val_acc.pdf
-flops_val_acc.png
-flops_val_acc_logx.pdf
-flops_val_acc_logx.png
-bo_resnet_v1_eembc_10epoch_100maxtrials_lrdecay
