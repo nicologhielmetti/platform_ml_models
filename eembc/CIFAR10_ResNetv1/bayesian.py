@@ -24,14 +24,14 @@ def build_model(hp):
     hp_kernelsize1 = hp.Choice('kernelsize1', [1, 2, 3])
     hp_strides0 = hp.Choice('strides0', [1, 4])
     hp_strides1 = hp.Choice('strides1', [2, 3, 4])
-    
+
     model = resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10,
                             num_filters=[hp_filters0, hp_filters0, hp_filters1],
                             kernel_sizes=[hp_kernelsize0, hp_kernelsize1],
                             strides=[hp_strides0, hp_strides1], l1p=0, l2p=1e-4)
     # compile model
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
-    model.compile(optimizer=optimizer, 
+    model.compile(optimizer=optimizer,
                   loss='categorical_crossentropy',
                   metrics=['accuracy'])
     return model
@@ -43,8 +43,8 @@ def main(args):
 
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
-    
-    # define data generator                                                                                                     
+
+    # define data generator
     datagen = ImageDataGenerator(
         rotation_range=15,
         width_shift_range=0.1,
@@ -65,14 +65,9 @@ def main(args):
     tuner = tunerClass(
         build_model,
         objective='val_accuracy',
-<<<<<<< HEAD
-        max_trials=10,  #100,  
-        project_name='bo_resnet_v1_eembc_10epoch_100maxtrials_lrdecay',
-=======
-        max_trials=args.max_trials,
+        max_trials=3, #args.max_trials,
         project_name=args.project_dir,
         hyperparameters=hp,
->>>>>>> 1e9a46aafdbc1b8152ca5c2b7acf86de61c184f4
         overwrite=True)
 
     datagen.fit(X_train)
@@ -84,7 +79,7 @@ def main(args):
 
     callbacks = [LearningRateScheduler(lr_schedule_func, verbose=1)]
 
-    tuner.search(datagen.flow(X_train, y_train, batch_size=32),                
+    tuner.search(datagen.flow(X_train, y_train, batch_size=32),
                  epochs=10,
                  validation_data=(X_test, y_test),
                  callbacks=callbacks,

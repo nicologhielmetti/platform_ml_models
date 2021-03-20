@@ -25,15 +25,15 @@ def main(args):
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
-    results = {'filters0': [], 'filters1': [], 'filters2': [], 
-               'kernelsize0': [], 'kernelsize1': [], 
+    results = {'filters0': [], 'filters1': [], 'filters2': [],
+               'kernelsize0': [], 'kernelsize1': [],
                'strides0': [], 'strides1': [],
                'val_acc': [], 'flops': [], 'stacks': []}
 
 
     tuner_names = args.tuner.split(',')
     project_dirs = args.project_dir.split(',')
-    
+
     tuners = []
     for tuner_name, project_dir in zip(tuner_names, project_dirs):
         tunerClass = getattr(kerastuner.tuners,tuner_name)
@@ -46,10 +46,10 @@ def main(args):
         tuners.append(tuner)
 
     import kerop
-<<<<<<< HEAD
+#<<<<<<< HEAD
     num = 20 #100
-    for trial, model, hp in zip(tuner.oracle.get_best_trials(num_trials=num), 
-                                tuner.get_best_models(num_models=num), 
+    for trial, model, hp in zip(tuner.oracle.get_best_trials(num_trials=num),
+                                tuner.get_best_models(num_models=num),
                                 tuner.get_best_hyperparameters(num_trials=num)):
         metrics_tracker = trial.metrics # type: MetricsTracker
         metric_histories = metrics_tracker.metrics # type: Dict[str, MetricHistory]
@@ -67,10 +67,10 @@ def main(args):
         print(result)
         for key in result:
             results[key].append(result[key])
-=======
+'''=======
     for tuner in tuners:
-        for trial, model, hp in zip(tuner.oracle.get_best_trials(num_trials=args.max_trials), 
-                                    tuner.get_best_models(num_models=args.max_trials), 
+        for trial, model, hp in zip(tuner.oracle.get_best_trials(num_trials=args.max_trials),
+                                    tuner.get_best_models(num_models=args.max_trials),
                                     tuner.get_best_hyperparameters(num_trials=args.max_trials)):
             metrics_tracker = trial.metrics # type: MetricsTracker
             metric_histories = metrics_tracker.metrics # type: Dict[str, MetricHistory]
@@ -85,30 +85,30 @@ def main(args):
             result = hp.values
             result['val_acc'] = val_acc
             result['flops'] = total_flop
-            result['stacks'] = 1 + 1*(result['filters1']!=0) + 1*(result['filters2']!=0) 
+            result['stacks'] = 1 + 1*(result['filters1']!=0) + 1*(result['filters2']!=0)
             for key in result:
                 results[key].append(result[key])
     # change to numpy array for easier indexing
     for key in result:
         results[key] = np.array(results[key])
->>>>>>> 1e9a46aafdbc1b8152ca5c2b7acf86de61c184f4
+>>>>>>> 1e9a46aafdbc1b8152ca5c2b7acf86de61c184f4'''
 
-    import matplotlib.pyplot as plt
-    import mplhep as hep
-    plt.style.use(hep.style.CMS)
+import matplotlib.pyplot as plt
+import mplhep as hep
+plt.style.use(hep.style.CMS)
 
-    plt.figure()
-        
-    cmap = np.array(['white', 'blue', 'orange', 'green'])
-    mask = (results['stacks']==3)
-    if np.sum(mask)>0:
-        plt.scatter(results['flops'][mask], results['val_acc'][mask], c=cmap[results['stacks'][mask]], label='3')
-    mask = (results['stacks']==2)
-    if np.sum(mask)>0:
-        plt.scatter(results['flops'][mask], results['val_acc'][mask], c=cmap[results['stacks'][mask]], label='2')
-    mask = (results['stacks']==1)
-    if np.sum(mask)>0:
-        plt.scatter(results['flops'][mask], results['val_acc'][mask], c=cmap[results['stacks'][mask]], label='1')
+plt.figure()
+
+cmap = np.array(['white', 'blue', 'orange', 'green'])
+mask = (results['stacks']==3)
+if np.sum(mask)>0:
+    plt.scatter(results['flops'][mask], results['val_acc'][mask], c=cmap[results['stacks'][mask]], label='3')
+mask = (results['stacks']==2)
+if np.sum(mask)>0:
+    plt.scatter(results['flops'][mask], results['val_acc'][mask], c=cmap[results['stacks'][mask]], label='2')
+mask = (results['stacks']==1)
+if np.sum(mask)>0:
+    plt.scatter(results['flops'][mask], results['val_acc'][mask], c=cmap[results['stacks'][mask]], label='1')
     plt.xlabel('FLOPs')
     plt.ylabel('Test accuracy')
     plt.legend(title='Stacks')
@@ -119,16 +119,16 @@ def main(args):
     plt.savefig('flops_val_acc_logx.pdf')
 
 
-    import pickle
-    f = open("results.pkl","wb")
-    pickle.dump(results,f)
-    f.close()
+import pickle
+f = open("results.pkl","wb")
+pickle.dump(results,f)
+f.close()
 
-    print("best models")
-    df = pd.DataFrame.from_dict(results)
-    df['val_acc_over_log_flops'] = df['val_acc']/np.log10(df['flops'])
-    df.sort_values('val_acc_over_log_flops', inplace=True, ascending=False)
-    print(df.to_string())
+print("best models")
+df = pd.DataFrame.from_dict(results)
+df['val_acc_over_log_flops'] = df['val_acc']/np.log10(df['flops'])
+df.sort_values('val_acc_over_log_flops', inplace=True, ascending=False)
+print(df.to_string())
 
 
 if __name__ == "__main__":
