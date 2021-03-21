@@ -65,7 +65,7 @@ def main(args):
     tuner = tunerClass(
         build_model,
         objective='val_accuracy',
-        max_trials=3, #args.max_trials,
+        max_trials=100, #args.max_trials,
         project_name=args.project_dir,
         hyperparameters=hp,
         overwrite=True)
