@@ -31,13 +31,13 @@ def main(args):
     input_shape = [32,32,3]
     num_classes = 10
     config = yaml_load(args.config)
-    num_filters = config['model']['filters']
-    kernel_sizes = config['model']['kernels']
-    strides = config['model']['strides']
+    num_filters = [8,8,8,8,8,4]  #config['model']['filters']
+    kernel_sizes = [3,3,3,3,3,3,3,3,2]  #config['model']['kernels']
+    strides = ['111','414','111']  #config['model']['strides']
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
     batch_size = config['fit']['batch_size']
-    num_epochs = config['fit']['epochs']
+    num_epochs = 100 #config['fit']['epochs']
     verbose = config['fit']['verbose']
     patience = config['fit']['patience']
     save_dir = config['save_dir']
@@ -59,7 +59,7 @@ def main(args):
 
     # load dataset
     (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-
+    X_train, X_test = X_train/255., X_test/255.
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
@@ -99,8 +99,8 @@ def main(args):
     print('# MODEL SUMMARY #')
     print('#################')
     print(model.summary())
-    print('#################') 
-    
+    print('#################')
+
     # analyze FLOPs (see https://github.com/kentaroy47/keras-Opcounter)
     layer_name, layer_flops, inshape, weights = kerop.profile(model)
 
@@ -134,7 +134,7 @@ def main(args):
     lr_schedule_func = get_lr_schedule_func(initial_lr, lr_decay)
 
     callbacks = [ModelCheckpoint(model_file_path, monitor='val_accuracy', verbose=verbose, save_best_only=True),
-                 EarlyStopping(monitor='val_accuracy', patience=patience, verbose=verbose, restore_best_weights=True),
+                 EarlyStopping(monitor='val_accuracy', patience=30, verbose=verbose, restore_best_weights=True),
                  LearningRateScheduler(lr_schedule_func, verbose=verbose),
     ]
 
@@ -155,12 +155,12 @@ def main(args):
 
     # evaluate with test dataset and share same prediction results
     evaluation = model.evaluate(X_test, y_test)
-    
+
     auc = roc_auc_score(y_test, y_pred, average='weighted', multi_class='ovr')
 
     print('Model test accuracy = %.3f' % evaluation[1])
     print('Model test weighted average AUC = %.3f' % auc)
-        
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default = "baseline.yml", help="specify yaml config")
@@ -168,4 +168,3 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     main(args)
-

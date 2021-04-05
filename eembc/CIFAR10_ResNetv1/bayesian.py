@@ -14,21 +14,43 @@ from train import get_lr_schedule_func
 import kerastuner
 from tensorflow.keras.datasets import cifar10
 
+filter_space = [2, 4, 8, 16] #, 32]
+kernelsize_space = [1, 2, 3]
+
 # define cnn model
 def build_model(hp):
     # default 3 stacks
-    hp_filters0 = hp.Choice('filters0', [2, 4, 8, 16, 32, 64, 128])
-    hp_filters1 = hp.Choice('filters1', [2, 4, 8, 16, 32, 64])
-    hp_filters2 = hp.Choice('filters2', [2, 4, 8, 16, 32, 64])
-    hp_kernelsize0 = hp.Choice('kernelsize0', [1, 2, 3])
-    hp_kernelsize1 = hp.Choice('kernelsize1', [1, 2, 3])
-    hp_strides0 = hp.Choice('strides0', [1, 4])
-    hp_strides1 = hp.Choice('strides1', [2, 3, 4])
+    hp_filters0_0 = hp.Choice('filters0_0', filter_space)
+    hp_filters0_1 = hp.Choice('filters0_1', filter_space)
+    hp_filters1_0 = hp.Choice('filters1_0', filter_space)
+    hp_filters1_1 = hp.Choice('filters1_1', filter_space)
+    hp_filters2_0 = hp.Choice('filters2_0', filter_space)
+    hp_filters2_1 = hp.Choice('filters2_1', filter_space)
+    hp_kernelsize0_0 = hp.Choice('kernelsize0_0', kernelsize_space)
+    hp_kernelsize0_1 = hp.Choice('kernelsize0_1', kernelsize_space)
+    hp_kernelsize0_2 = hp.Choice('kernelsize0_2', kernelsize_space)
+    hp_kernelsize1_0 = hp.Choice('kernelsize1_0', kernelsize_space)
+    hp_kernelsize1_1 = hp.Choice('kernelsize1_1', kernelsize_space)
+    hp_kernelsize1_2 = hp.Choice('kernelsize1_2', kernelsize_space)
+    hp_kernelsize2_0 = hp.Choice('kernelsize2_0', kernelsize_space)
+    hp_kernelsize2_1 = hp.Choice('kernelsize2_1', kernelsize_space)
+    hp_kernelsize2_2 = hp.Choice('kernelsize2_2', kernelsize_space)
 
-    model = resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10,
-                            num_filters=[hp_filters0, hp_filters0, hp_filters1],
-                            kernel_sizes=[hp_kernelsize0, hp_kernelsize1],
-                            strides=[hp_strides0, hp_strides1], l1p=0, l2p=1e-4)
+    hp_strides0 = hp.Choice('strides0', ['111', '211', '244', '311', '334', '343', '344', '411', '424', '433', '434', '442', '443', '444'])
+    hp_strides1 = hp.Choice('strides1', ['111', '122', '133', '144', '212', '224', '313', '414'])
+    hp_strides2 = hp.Choice('strides2', ['111', '122', '133', '144', '212', '224', '313', '414'])
+
+    model = resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2p=1e-4,
+                            num_filters=[hp_filters0_0, hp_filters0_1,
+                                         hp_filters1_0, hp_filters1_1,
+                                         hp_filters2_0, hp_filters2_0],
+                            kernel_sizes=[hp_kernelsize0_0, hp_kernelsize0_1, hp_kernelsize0_2,
+                                          hp_kernelsize1_0, hp_kernelsize1_1, hp_kernelsize1_2,
+                                          hp_kernelsize2_0, hp_kernelsize2_1, hp_kernelsize2_2],
+                            strides=[hp_strides0,
+                                     hp_strides1,
+                                     hp_strides2],
+                        )
     # compile model
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
     model.compile(optimizer=optimizer,
@@ -55,24 +77,37 @@ def main(args):
     tunerClass = getattr(kerastuner.tuners,args.tuner)
     hp = kerastuner.HyperParameters()
     if args.stacks==2:
-        hp.Fixed('filters2', 0)
+        hp.Fixed('filters2_0', 0)
+        hp.Fixed('filters2_1', 0)
+        hp.Fixed('kernelsize2_0', 0)
+        hp.Fixed('kernelsize2_1', 0)
+        hp.Fixed('kernelsize2_2', 0)
+        hp.Fixed('strides2', '')
     elif args.stacks==1:
-        hp.Fixed('filters1', 0)
-        hp.Fixed('filters2', 0)
-        hp.Fixed('kernelsize1', 0)
-        hp.Fixed('strides1', 0)
+        hp.Fixed('filters1_0', 0)
+        hp.Fixed('filters1_1', 0)
+        hp.Fixed('filters2_0', 0)
+        hp.Fixed('filters2_1', 0)
+        hp.Fixed('kernelsize1_0', 0)
+        hp.Fixed('kernelsize1_1', 0)
+        hp.Fixed('kernelsize1_2', 0)
+        hp.Fixed('kernelsize2_0', 0)
+        hp.Fixed('kernelsize2_1', 0)
+        hp.Fixed('kernelsize2_2', 0)
+        hp.Fixed('strides1', '')
+        hp.Fixed('strides2', '')
 
     tuner = tunerClass(
         build_model,
         objective='val_accuracy',
-        max_trials=100, #args.max_trials,
+        max_trials=args.max_trials,
         project_name=args.project_dir,
         hyperparameters=hp,
         overwrite=True)
 
     datagen.fit(X_train)
 
-    print("Here is the summary: \n", tuner.search_space_summary())
+    print(tuner.search_space_summary())
 
     from tensorflow.keras.callbacks import LearningRateScheduler
     lr_schedule_func = get_lr_schedule_func(0.001, 0.99)
