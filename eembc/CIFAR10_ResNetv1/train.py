@@ -39,7 +39,7 @@ def main(args):
     batch_size = config['fit']['batch_size']
     num_epochs = 200 #config['fit']['epochs']
     verbose = config['fit']['verbose']
-    patience = 40 #config['fit']['patience']
+    patience = 100 #config['fit']['patience']
     save_dir = config['save_dir']
     model_name = config['model']['name']
     loss = config['fit']['compile']['loss']
@@ -134,7 +134,7 @@ def main(args):
     lr_schedule_func = get_lr_schedule_func(initial_lr, lr_decay)
 
     callbacks = [ModelCheckpoint(model_file_path, monitor='val_accuracy', verbose=verbose, save_best_only=True),
-                 EarlyStopping(monitor='val_accuracy', patience=30, verbose=verbose, restore_best_weights=True),
+                 EarlyStopping(monitor='val_accuracy', patience=patience, verbose=verbose, restore_best_weights=True),
                  LearningRateScheduler(lr_schedule_func, verbose=verbose),
     ]
 
