@@ -40,7 +40,7 @@ def build_model(hp):
     hp_strides1 = hp.Choice('strides1', ['111', '122', '133', '144', '212', '224', '313', '414'])
     hp_strides2 = hp.Choice('strides2', ['111', '122', '133', '144', '212', '224', '313', '414'])
 
-    model = resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2p=1e-4,
+    model = resnet_v1_eembc_withskip(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2p=1e-4,
                             num_filters=[hp_filters0_0, hp_filters0_1,
                                          hp_filters1_0, hp_filters1_1,
                                          hp_filters2_0, hp_filters2_1],
@@ -50,6 +50,7 @@ def build_model(hp):
                             strides=[hp_strides0,
                                      hp_strides1,
                                      hp_strides2],
+                            skip=True
                         )
     # compile model
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
