@@ -31,9 +31,9 @@ def main(args):
     input_shape = [32,32,3]
     num_classes = 10
     config = yaml_load(args.config)
-    num_filters = [16,16,0,0,0,0]  #config['model']['filters']
-    kernel_sizes = [3,3,3,0,0,0,0,0,0]  #config['model']['kernels']
-    strides = ['311','000','000']  #config['model']['strides']
+    num_filters = [8,8,0,0,0,0]  #config['model']['filters']
+    kernel_sizes = [5,6,6,0,0,0,0,0,0]  #config['model']['kernels']
+    strides = ['434','000','000']  #config['model']['strides']
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
     batch_size = config['fit']['batch_size']
@@ -131,7 +131,7 @@ def main(args):
     # callbacks
     from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 
-    lr_schedule_func = get_lr_schedule_func(initial_lr, lr_decay)
+    lr_schedule_func = get_lr_schedule_func(0.001, 0.99) #initial_lr, lr_decay)
 
     callbacks = [ModelCheckpoint(model_file_path, monitor='val_accuracy', verbose=verbose, save_best_only=True),
                  EarlyStopping(monitor='val_accuracy', patience=patience, verbose=verbose, restore_best_weights=True),
