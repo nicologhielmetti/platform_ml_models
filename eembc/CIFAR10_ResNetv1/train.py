@@ -1,3 +1,4 @@
+import setGPU
 import os
 import glob
 import sys
@@ -31,15 +32,16 @@ def main(args):
     input_shape = [32,32,3]
     num_classes = 10
     config = yaml_load(args.config)
-    num_filters = [8,8,0,0,0,0]  #config['model']['filters']
-    kernel_sizes = [5,6,6,0,0,0,0,0,0]  #config['model']['kernels']
-    strides = ['434','000','000']  #config['model']['strides']
+    num_filters = config['model']['filters']
+    kernel_sizes = config['model']['kernels']
+    strides = config['model']['strides']
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
+    skip = bool(config['model']['skip'])
     batch_size = config['fit']['batch_size']
-    num_epochs = 200 #config['fit']['epochs']
+    num_epochs = config['fit']['epochs']
     verbose = config['fit']['verbose']
-    patience = 100 #config['fit']['patience']
+    patience = config['fit']['patience']
     save_dir = config['save_dir']
     model_name = config['model']['name']
     loss = config['fit']['compile']['loss']
@@ -59,7 +61,7 @@ def main(args):
 
     # load dataset
     (X_train, y_train), (X_test, y_test) = cifar10.load_data()
-    X_train, X_test = X_train/255., X_test/255.
+    X_train, X_test = X_train/256., X_test/256.
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
@@ -82,7 +84,8 @@ def main(args):
               'kernel_sizes': kernel_sizes,
               'strides': strides,
               'l1p': l1p,
-              'l2p': l2p}
+              'l2p': l2p,
+              'skip': skip}
 
     # pass quantization params
     if 'quantized' in model_name:
@@ -99,8 +102,8 @@ def main(args):
     print('# MODEL SUMMARY #')
     print('#################')
     print(model.summary())
-    print('#################')
-
+    print('#################') 
+    
     # analyze FLOPs (see https://github.com/kentaroy47/keras-Opcounter)
     layer_name, layer_flops, inshape, weights = kerop.profile(model)
 
@@ -131,7 +134,7 @@ def main(args):
     # callbacks
     from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, LearningRateScheduler
 
-    lr_schedule_func = get_lr_schedule_func(0.001, 0.99) #initial_lr, lr_decay)
+    lr_schedule_func = get_lr_schedule_func(initial_lr, lr_decay)
 
     callbacks = [ModelCheckpoint(model_file_path, monitor='val_accuracy', verbose=verbose, save_best_only=True),
                  EarlyStopping(monitor='val_accuracy', patience=patience, verbose=verbose, restore_best_weights=True),
@@ -155,12 +158,12 @@ def main(args):
 
     # evaluate with test dataset and share same prediction results
     evaluation = model.evaluate(X_test, y_test)
-
+    
     auc = roc_auc_score(y_test, y_pred, average='weighted', multi_class='ovr')
 
     print('Model test accuracy = %.3f' % evaluation[1])
     print('Model test weighted average AUC = %.3f' % auc)
-
+        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default = "baseline.yml", help="specify yaml config")
