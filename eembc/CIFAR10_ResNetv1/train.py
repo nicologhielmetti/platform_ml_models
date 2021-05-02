@@ -38,6 +38,7 @@ def main(args):
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
     skip = bool(config['model']['skip'])
+    avg_pooling = bool(config['model']['avg_pooling'])
     batch_size = config['fit']['batch_size']
     num_epochs = config['fit']['epochs']
     verbose = config['fit']['verbose']
@@ -53,6 +54,10 @@ def main(args):
         logit_int_bits = config["quantization"]["logit_int_bits"]
         activation_total_bits = config["quantization"]["activation_total_bits"]
         activation_int_bits = config["quantization"]["activation_int_bits"]
+        alpha = config["quantization"]["alpha"]
+        use_stochastic_rounding = config["quantization"]["use_stochastic_rounding"]
+        logit_quantizer = config["quantization"]["logit_quantizer"]
+        activation_quantizer = config["quantization"]["activation_quantizer"]
 
     # optimizer
     optimizer = getattr(tf.keras.optimizers,config['fit']['compile']['optimizer'])
@@ -85,7 +90,8 @@ def main(args):
               'strides': strides,
               'l1p': l1p,
               'l2p': l2p,
-              'skip': skip}
+              'skip': skip,
+              'avg_pooling': avg_pooling}
 
     # pass quantization params
     if 'quantized' in model_name:
@@ -93,6 +99,11 @@ def main(args):
         kwargs["logit_int_bits"] = logit_int_bits
         kwargs["activation_total_bits"] = activation_total_bits
         kwargs["activation_int_bits"] = activation_int_bits
+        kwargs["alpha"] = None if alpha == 'None' else alpha
+        print(kwargs["alpha"] is None)
+        kwargs["use_stochastic_rounding"] = use_stochastic_rounding
+        kwargs["logit_quantizer"] = logit_quantizer
+        kwargs["activation_quantizer"] = activation_quantizer
 
     # define model
     model = getattr(resnet_v1_eembc,model_name)(**kwargs)

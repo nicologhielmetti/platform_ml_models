@@ -65,14 +65,14 @@ def calc_BOPS(model, input_data_precision=32):
 
     return total_BOPS
 
-def model_BOPs(filters=[0,0,0,0,0,0],kernels=[0,0,0,0,0,0,0,0,0],strides=['000','000','000'],input_precision=32):
+def model_BOPs(filters=[0,0,0,0,0,0],kernels=[0,0,0,0,0,0,0,0,0],strides=['000','000','000'],ip=32):
     model = resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2p=1e-4,
                             num_filters=filters,
                             kernel_sizes=kernels,
                             strides=strides,
                             )
     try:
-        BOPs = calc_BOPS(model,input_precision)
+        BOPs = calc_BOPS(model,input_data_precision=7)
         return BOPs
     except:
         pass

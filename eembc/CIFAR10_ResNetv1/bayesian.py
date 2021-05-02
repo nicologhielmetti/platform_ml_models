@@ -14,8 +14,8 @@ from train import get_lr_schedule_func
 import kerastuner
 from tensorflow.keras.datasets import cifar10
 
-filter_space = [2, 4, 8] #, 16, 32, 64]
-kernelsize_space = [1, 2, 3, 4, 5, 6]
+filter_space = [2, 4, 8, 16, 32] #, 64]
+kernelsize_space = [1, 2, 3, 4]#, 5, 6]
 
 # define cnn model
 def build_model(hp):
@@ -50,6 +50,7 @@ def build_model(hp):
                             strides=[hp_strides0,
                                      hp_strides1,
                                      hp_strides2],
+                            skip=False,
                         )
     # compile model
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
