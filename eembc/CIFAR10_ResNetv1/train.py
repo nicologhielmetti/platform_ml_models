@@ -32,9 +32,9 @@ def main(args):
     input_shape = [32,32,3]
     num_classes = 10
     config = yaml_load(args.config)
-    num_filters = config['model']['filters']
-    kernel_sizes = config['model']['kernels']
-    strides = config['model']['strides']
+    num_filters = [32,32,0,0,0,0]#config['model']['filters']
+    kernel_sizes = [4,3,4,0,0,0,0,0,0]#config['model']['kernels']
+    strides = ['424','000','000']#config['model']['strides']
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
     skip = bool(config['model']['skip'])
@@ -42,7 +42,7 @@ def main(args):
     batch_size = config['fit']['batch_size']
     num_epochs = config['fit']['epochs']
     verbose = config['fit']['verbose']
-    patience = config['fit']['patience']
+    patience = 100 #config['fit']['patience']
     save_dir = config['save_dir']
     model_name = config['model']['name']
     loss = config['fit']['compile']['loss']
@@ -113,8 +113,8 @@ def main(args):
     print('# MODEL SUMMARY #')
     print('#################')
     print(model.summary())
-    print('#################') 
-    
+    print('#################')
+
     # analyze FLOPs (see https://github.com/kentaroy47/keras-Opcounter)
     layer_name, layer_flops, inshape, weights = kerop.profile(model)
 
@@ -169,12 +169,12 @@ def main(args):
 
     # evaluate with test dataset and share same prediction results
     evaluation = model.evaluate(X_test, y_test)
-    
+
     auc = roc_auc_score(y_test, y_pred, average='weighted', multi_class='ovr')
 
     print('Model test accuracy = %.3f' % evaluation[1])
     print('Model test weighted average AUC = %.3f' % auc)
-        
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str, default = "baseline.yml", help="specify yaml config")
