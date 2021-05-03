@@ -354,8 +354,10 @@ def resnet_v1_eembc_quantized(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2
 
     # Final classification layer.
     pool_size = int(np.amin(x.shape[1:3]))
-    if pool_size > 1 and avg_pooling:
-        x = QAveragePooling2D(pool_size=pool_size, quantizer=logit_quantizer)(x)
+    if pool_size > 1 and max_pooling:
+        x = MaxPooling2D(pool_size=pool_size, quantizer=logit_quantizer)(x)
+    elif pool_size > 1 and avg_pooling:
+        x = MaxPooling2D(pool_size=pool_size, quantizer=logit_quantizer)(x)
 
     y = Flatten()(x)
     # Changed output to separate QDense but did not quantize softmax as specified

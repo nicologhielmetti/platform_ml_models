@@ -30,6 +30,7 @@ model:
   - '000'
   skip: 0
   avg_pooling: 0
+  max_pooling: 1
 
 pruning:
   sparsity: 1.0

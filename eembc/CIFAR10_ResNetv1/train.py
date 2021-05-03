@@ -39,6 +39,7 @@ def main(args):
     l2p = float(config['model']['l2'])
     skip = bool(config['model']['skip'])
     avg_pooling = bool(config['model']['avg_pooling'])
+    max_pooling = bool(config['model']['max_pooling'])
     batch_size = config['fit']['batch_size']
     num_epochs = config['fit']['epochs']
     verbose = config['fit']['verbose']
