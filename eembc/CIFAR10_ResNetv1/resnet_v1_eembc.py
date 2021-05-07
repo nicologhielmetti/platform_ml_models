@@ -165,8 +165,10 @@ def resnet_v1_eembc(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2p=1e-4,
 
     # Final classification layer.
     pool_size = int(np.amin(x.shape[1:3]))
+    #if pool_size > 1 and max_pooling:
+    #    x = MaxPooling2D(pool_size=pool_size)(x)
     if pool_size > 1 and avg_pooling:
-        x = MaxPooling2D(pool_size=pool_size)(x)
+        x = AveragePooling2D(pool_size=pool_size)(x)
     y = Flatten()(x)
     y = Dense(num_classes,
                     kernel_initializer='he_normal')(y)
@@ -354,9 +356,9 @@ def resnet_v1_eembc_quantized(input_shape=[32, 32, 3], num_classes=10, l1p=0, l2
 
     # Final classification layer.
     pool_size = int(np.amin(x.shape[1:3]))
-    if pool_size > 1 and max_pooling:
-        x = MaxPooling2D(pool_size=pool_size, quantizer=logit_quantizer)(x)
-    elif pool_size > 1 and avg_pooling:
+    #if pool_size > 1 and max_pooling:
+        #x = MaxPooling2D(pool_size=pool_size, quantizer=logit_quantizer)(x)
+    if pool_size > 1 and avg_pooling:
         x = MaxPooling2D(pool_size=pool_size, quantizer=logit_quantizer)(x)
 
     y = Flatten()(x)

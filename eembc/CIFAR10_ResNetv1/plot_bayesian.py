@@ -25,13 +25,13 @@ def main(args):
     y_train = tf.keras.utils.to_categorical(y_train, num_classes)
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
-    results = {'filters0_0': [], 'filters0_1': [], 
-               'filters1_0': [], 'filters1_1': [], 
-               'filters2_0': [], 'filters2_1': [], 
-               'kernelsize0_0': [], 'kernelsize0_1': [], 'kernelsize0_2': [], 
-               'kernelsize1_0': [], 'kernelsize1_1': [], 'kernelsize1_2': [], 
-               'kernelsize2_0': [], 'kernelsize2_1': [], 'kernelsize2_2': [], 
-               'strides0': [], 
+    results = {'filters0_0': [], 'filters0_1': [],
+               'filters1_0': [], 'filters1_1': [],
+               'filters2_0': [], 'filters2_1': [],
+               'kernelsize0_0': [], 'kernelsize0_1': [], 'kernelsize0_2': [],
+               'kernelsize1_0': [], 'kernelsize1_1': [], 'kernelsize1_2': [],
+               'kernelsize2_0': [], 'kernelsize2_1': [], 'kernelsize2_2': [],
+               'strides0': [],
                'strides1': [],
                'strides2': [],
                'val_acc': [], 'flops': [], 'stacks': []}
@@ -39,7 +39,7 @@ def main(args):
 
     tuner_names = args.tuner.split(',')
     project_dirs = args.project_dir.split(',')
-    
+
     tuners = []
     for tuner_name, project_dir in zip(tuner_names, project_dirs):
         tunerClass = getattr(kerastuner.tuners,tuner_name)
@@ -53,8 +53,8 @@ def main(args):
 
     import kerop
     for tuner in tuners:
-        for trial, model, hp in zip(tuner.oracle.get_best_trials(num_trials=args.max_trials), 
-                                    tuner.get_best_models(num_models=args.max_trials), 
+        for trial, model, hp in zip(tuner.oracle.get_best_trials(num_trials=args.max_trials),
+                                    tuner.get_best_models(num_models=args.max_trials),
                                     tuner.get_best_hyperparameters(num_trials=args.max_trials)):
             metrics_tracker = trial.metrics # type: MetricsTracker
             metric_histories = metrics_tracker.metrics # type: Dict[str, MetricHistory]
@@ -69,7 +69,7 @@ def main(args):
             result = hp.values
             result['val_acc'] = val_acc
             result['flops'] = total_flop
-            result['stacks'] = 1 + 1*(result['filters1_0']!=0) + 1*(result['filters2_0']!=0) 
+            result['stacks'] = 1 + 1*(result['filters1_0']!=0) + 1*(result['filters2_0']!=0)
             for key in result:
                 results[key].append(result[key])
     # change to numpy array for easier indexing
@@ -81,7 +81,7 @@ def main(args):
     plt.style.use(hep.style.CMS)
 
     plt.figure()
-        
+
     cmap = np.array(['white', 'blue', 'orange', 'green'])
     mask = (results['stacks']==3)
     if np.sum(mask)>0:
@@ -119,7 +119,7 @@ def main(args):
                                'kernelsize0_0', 'kernelsize0_1', 'kernelsize0_2',
                                'kernelsize1_0', 'kernelsize1_1', 'kernelsize1_2',
                                'kernelsize2_0', 'kernelsize2_1', 'kernelsize2_2',
-                               'strides0', 'strides1', 'strides2'], 
+                               'strides0', 'strides1', 'strides2'],
                        inplace=True, keep='first')
     # print all models with < 1 MFLOPs
     print(df[df['flops']<1e6].to_string())

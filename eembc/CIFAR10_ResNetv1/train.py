@@ -33,13 +33,13 @@ def main(args):
     num_classes = 10
     config = yaml_load(args.config)
     num_filters = [32,32,0,0,0,0]#config['model']['filters']
-    kernel_sizes = [4,3,4,0,0,0,0,0,0]#config['model']['kernels']
-    strides = ['424','000','000']#config['model']['strides']
+    kernel_sizes = [3,3,3,0,0,0,0,0,0]#config['model']['kernels']
+    strides = ['411','000','000']#config['model']['strides']
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
     skip = bool(config['model']['skip'])
     avg_pooling = bool(config['model']['avg_pooling'])
-    max_pooling = bool(config['model']['max_pooling'])
+    #max_pooling = bool(config['model']['max_pooling'])
     batch_size = config['fit']['batch_size']
     num_epochs = config['fit']['epochs']
     verbose = config['fit']['verbose']
