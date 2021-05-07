@@ -32,9 +32,9 @@ def main(args):
     input_shape = [32,32,3]
     num_classes = 10
     config = yaml_load(args.config)
-    num_filters = [32,32,0,0,0,0]#config['model']['filters']
-    kernel_sizes = [3,3,3,0,0,0,0,0,0]#config['model']['kernels']
-    strides = ['411','000','000']#config['model']['strides']
+    num_filters = config['model']['filters']
+    kernel_sizes = config['model']['kernels']
+    strides = config['model']['strides']
     l1p = float(config['model']['l1'])
     l2p = float(config['model']['l2'])
     skip = bool(config['model']['skip'])
