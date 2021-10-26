@@ -71,11 +71,11 @@ def main(args):
     num_classes = 10
     y_test = tf.keras.utils.to_categorical(y_test, num_classes)
 
-    # just use first 100
+    # just use first 10 (RTL sim is slow)
     #if bool(our_config['convert']['Trace']):
     if True:
-        X_test = X_test[:100]
-        y_test = y_test[:100]
+        X_test = X_test[:10]
+        y_test = y_test[:10]
 
     y_keras = model.predict(X_test)
     print("Keras Accuracy:  {}".format(accuracy_score(np.argmax(y_test, axis=1), np.argmax(y_keras, axis=1))))
